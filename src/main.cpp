@@ -20,6 +20,7 @@ int main(int argc,char* argv[]){
     char headChar,tailChar;
     string inputFileName;
     int c;
+    opterr = 0;
     int length; // the length of the word chain assigned
     while((c=getopt(argc,argv,optstring))!=-1){
         switch (c){
@@ -29,16 +30,9 @@ int main(int argc,char* argv[]){
                     exit(0);
                 }
                 else {
-//                    if(opterr){
-//                        cout<<"ERROR:You must give the file name in the right position like -w filename"<<endl;
-//                        exit(0);
-//                    }
-//                    else {
                         choice = true;
-                        //inputFileName = optarg;
                         conflictflag = true;
                         break;
-                   // }
                 }
             }
             case 'c':{
@@ -47,16 +41,10 @@ int main(int argc,char* argv[]){
                     exit(0);
                 }
                 else {
-//                    if(opterr){
-//                        cout<<"ERROR:You must give the file name in the right position like -c filename"<<endl;
-//                        exit(0);
-//                    }
-//                    else {
                         choice = false;
                         //inputFileName = optarg;
                         conflictflag = true;
                         break;
-                  //  }
                 }
             }
             case 'h':{
@@ -91,9 +79,6 @@ int main(int argc,char* argv[]){
                     break;
                 }
             }
-//            case '?':{
-//                cout<<"ERROR:unrecognized parameter!"<<endl;
-//            }
             default:
                 cout<<"ERROR:unrecognized parameter!"<<endl;
                 break;
@@ -110,7 +95,5 @@ int main(int argc,char* argv[]){
     else{
         inputFileName = argv[argc-1];
     }
-
-    //int fordebug = 1;
     cout << inputFileName<<endl;
 }
