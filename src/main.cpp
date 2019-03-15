@@ -15,6 +15,7 @@ int main(int argc,char* argv[]){
     bool choice = true; // most word or most character, true:word,false:character
     bool head = false;
     bool tail = false;
+    bool fixedlength = false;
     bool conflictflag = false; // is -c and -w both used in the parameter
     // if constraint head character or tail character
     char headChar,tailChar;
@@ -76,6 +77,7 @@ int main(int argc,char* argv[]){
                 }
                 else{
                     length = atoi(optarg);
+                    fixedlength = true;
                     break;
                 }
             }
