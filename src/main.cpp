@@ -7,10 +7,19 @@
 #include <getopt.h>
 #include <string>
 #include <string.h>
+#include <vector>
+#include <map>
 using std::string;
 using std::cout;
 using std::endl;
+using std::vector;
+using std::map;
+using std::pair;
+vector<string> result;
+vector<string> mostWords(map<char,vector<pair<string,bool>>>*);
+void reset(map<char,vector<pair<string,bool>>>*);
 int main(int argc,char* argv[]){
+    // < -- parser command arguments -- >
     const char* optstring = "wch:t:n:";
     bool choice = true; // most word or most character, true:word,false:character
     bool head = false;
@@ -38,7 +47,7 @@ int main(int argc,char* argv[]){
             }
             case 'c':{
                 if(conflictflag){
-                    cout << "ERROR:You can't choose both most words and most character both"<<endl;
+                    cout << "ERROR:You can't choose both most words and most characters both"<<endl;
                     exit(0);
                 }
                 else {
@@ -97,5 +106,46 @@ int main(int argc,char* argv[]){
     else{
         inputFileName = argv[argc-1];
     }
-    cout << inputFileName<<endl;
+    // < -- parser command line arguments finished -- >
+
 }
+
+vector<string> mostWord(map<char,vector<pair<string,bool>>>* words){
+    vector<string> tmpres = vector<string>();
+    vector<string> res = vector<string>();
+    char c = 'a';
+    for(;c<='z';c++){
+        if(words->count(c)){
+            tmpres.clear();
+            for (int i=0;i< (*words)[c].size();i++) {
+                string start = (*words)[c][0].first;
+                (*words)[c][0].second = true;
+                tmpres.push_back(start);
+                char next = start.at(start.size() - 1);
+                while (words->count(next)) {
+                    for(int k=0;k<(*words)[next].size();k++){
+                        if(!(*words)[next][k].second){
+                            tmpres.push_back((*words)[next][k].first);
+                            (*words)[next][k].second = true;
+                        }
+                    }
+                }
+                if (tmpres.size() > res.size()) {
+                    res = tmpres;
+                }
+                else{
+                    continue;
+                }
+            }
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
