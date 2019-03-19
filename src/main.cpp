@@ -15,6 +15,7 @@ using std::endl;
 using std::vector;
 using std::map;
 using std::pair;
+using std::make_pair;
 vector<string> result;
 vector<string> mostWords(map<char,vector<pair<string,bool>>>*);
 void reset(map<char,vector<pair<string,bool>>>*);
@@ -107,10 +108,20 @@ int main(int argc,char* argv[]){
         inputFileName = argv[argc-1];
     }
     // < -- parser command line arguments finished -- >
-
+    map<char,vector<pair<string,bool>>>* words = new map<char,vector<pair<string,bool>>>;
+    (*words)['a'].push_back(make_pair("are",false));
+    (*words)['e'].push_back(make_pair("eng",false));
+    (*words)['h'].push_back(make_pair("hello",false));
+    (*words)['n'].push_back(make_pair("neer",false));
+    (*words)['s'].push_back(make_pair("softw",false));
+    (*words)['w'].push_back(make_pair("world",false));
+    result = mostWords(words);
+    for(auto& i:result){
+        cout << i << endl;
+    }
 }
 
-vector<string> mostWord(map<char,vector<pair<string,bool>>>* words){
+vector<string> mostWords(map<char,vector<pair<string,bool>>>* words){
     vector<string> tmpres = vector<string>();
     vector<string> res = vector<string>();
     char c = 'a';
@@ -118,7 +129,7 @@ vector<string> mostWord(map<char,vector<pair<string,bool>>>* words){
         if(words->count(c)){
             tmpres.clear();
             for (int i=0;i< (*words)[c].size();i++) {
-                string start = (*words)[c][0].first;
+                string start = (*words)[c][i].first;
                 (*words)[c][0].second = true;
                 tmpres.push_back(start);
                 char next = start.at(start.size() - 1);
@@ -127,6 +138,11 @@ vector<string> mostWord(map<char,vector<pair<string,bool>>>* words){
                         if(!(*words)[next][k].second){
                             tmpres.push_back((*words)[next][k].first);
                             (*words)[next][k].second = true;
+                            next = (*words)[next][k].first.at((*words)[next][k].first.size()-1);
+                            break;
+                        }
+                        else{
+                            continue;
                         }
                     }
                 }
@@ -136,10 +152,19 @@ vector<string> mostWord(map<char,vector<pair<string,bool>>>* words){
                 else{
                     continue;
                 }
+              reset(words);
             }
         }
     }
+    return res;
+}
 
+void reset(map<char,vector<pair<string,bool>>>* wordmap){
+    for(auto it = wordmap->begin();it!=wordmap->end();it++){
+      for(auto iter : it->second){
+          iter.second = false;
+      }
+    }
 }
 
 
