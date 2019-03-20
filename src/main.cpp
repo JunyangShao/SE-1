@@ -109,12 +109,20 @@ int main(int argc,char* argv[]){
     }
     // < -- parser command line arguments finished -- >
     map<char,vector<pair<string,bool>>>* words = new map<char,vector<pair<string,bool>>>;
-    (*words)['a'].push_back(make_pair("are",false));
-    (*words)['e'].push_back(make_pair("eng",false));
-    (*words)['h'].push_back(make_pair("hello",false));
-    (*words)['n'].push_back(make_pair("neer",false));
-    (*words)['s'].push_back(make_pair("softw",false));
-    (*words)['w'].push_back(make_pair("world",false));
+    (*words)['a'].push_back(make_pair("algebra",false));
+    (*words)['a'].push_back(make_pair("apple",false));
+    (*words)['z'].push_back(make_pair("zoo",false));
+    (*words)['e'].push_back(make_pair("elephant",false));
+    (*words)['u'].push_back(make_pair("under",false));
+    (*words)['f'].push_back(make_pair("fox",false));
+    (*words)['d'].push_back(make_pair("dog",false));
+    (*words)['m'].push_back(make_pair("moon",false));
+    (*words)['l'].push_back(make_pair("leaf",false));
+    (*words)['t'].push_back(make_pair("trick",false));
+    //(*words)['h'].push_back(make_pair("hello",false));
+    //(*words)['n'].push_back(make_pair("neer",false));
+    //(*words)['s'].push_back(make_pair("softw",false));
+    //(*words)['w'].push_back(make_pair("world",false));
     result = mostWords(words);
     for(auto& i:result){
         cout << i << endl;
@@ -127,7 +135,7 @@ vector<string> mostWords(map<char,vector<pair<string,bool>>>* words){
     char c = 'a';
     for(;c<='z';c++){
         if(words->count(c)){
-            tmpres.clear();
+             //tmpres.clear();
             for (int i=0;i< (*words)[c].size();i++) {
                 string start = (*words)[c][i].first;
                 (*words)[c][0].second = true;
@@ -148,11 +156,16 @@ vector<string> mostWords(map<char,vector<pair<string,bool>>>* words){
                 }
                 if (tmpres.size() > res.size()) {
                     res = tmpres;
+                    tmpres.clear();
+                    reset(words);
                 }
                 else{
+                    tmpres.clear();
+                    reset(words);
                     continue;
                 }
-              reset(words);
+
+
             }
         }
     }
@@ -161,7 +174,7 @@ vector<string> mostWords(map<char,vector<pair<string,bool>>>* words){
 
 void reset(map<char,vector<pair<string,bool>>>* wordmap){
     for(auto it = wordmap->begin();it!=wordmap->end();it++){
-      for(auto iter : it->second){
+      for(auto& iter : it->second){
           iter.second = false;
       }
     }
