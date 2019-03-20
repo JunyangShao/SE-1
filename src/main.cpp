@@ -19,9 +19,9 @@ using std::map;
 using std::pair;
 using std::make_pair;
 int world_count;
-vector<string> result;
 vector<string> mostWords(map<char, vector<pair<string, bool>>>*);
 vector<string> mostLetters(map<char, vector<pair<string, bool>>>* words);
+vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words, int n);
 map<char, vector<pair<string, bool>>>* preprocess(string filename);
 int letter_count(vector<string> wolrdlist);
 void reset(map<char, vector<pair<string, bool>>>*);
@@ -130,9 +130,13 @@ int main(int argc, char* argv[]) {
 	//(*words)['n'].push_back(make_pair("neer",false));
 	//(*words)['s'].push_back(make_pair("softw",false));
 	//(*words)['w'].push_back(make_pair("world",false));
-	result = mostLetters(words);
-	for (auto& i : result) {
-		cout << i << endl;
+	vector<vector<string>> result;
+	result = fixed_num(words,2);
+	for (auto &worldlist:result) {
+		for (auto& i : worldlist) {
+			cout << i << endl;
+		}
+		cout << endl;
 	}
 	getchar();
 
@@ -227,6 +231,48 @@ vector<string> mostLetters(map<char, vector<pair<string, bool>>>* words) {
 	}
 	return res;
 }
+
+vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words,int n) {
+	vector<string> tmpres = vector<string>();
+	vector<vector<string>> res = vector<vector<string>>();
+	char c = 'a';
+	for (; c <= 'z'; c++) {
+		if (words->count(c)) {
+			//tmpres.clear();
+			for (int i = 0; i < (*words)[c].size(); i++) {
+				string start = (*words)[c][i].first;
+				(*words)[c][0].second = true;
+				tmpres.push_back(start);
+				char next = start.at(start.size() - 1);
+				while (words->count(next)) {
+					for (int k = 0; k < (*words)[next].size(); k++) {
+						if (!(*words)[next][k].second) {
+							tmpres.push_back((*words)[next][k].first);
+							(*words)[next][k].second = true;
+							next = (*words)[next][k].first.at((*words)[next][k].first.size() - 1);
+							break;
+						}
+						else {
+							continue;
+						}
+					}
+				if (tmpres.size()==n) {
+					res.push_back(tmpres);
+					tmpres.clear();
+					reset(words);
+					break;
+				}
+				}
+				tmpres.clear();
+				reset(words);
+				continue;
+			}
+		}
+	}
+	return res;
+}
+
+
 int letter_count(vector<string> wolrdlist) {
 	int res = 0;
 	for (auto word :wolrdlist) {
