@@ -19,9 +19,10 @@ using std::map;
 using std::pair;
 using std::make_pair;
 int world_count;
-vector<string> mostWords(map<char, vector<pair<string, bool>>>*);
-vector<string> mostLetters(map<char, vector<pair<string, bool>>>* words);
+vector<vector<string>> mostWords(map<char, vector<pair<string, bool>>>*);
+vector<vector<string>> mostLetters(map<char, vector<pair<string, bool>>>* words);
 vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words, int n);
+vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* words, char head, char tail);
 map<char, vector<pair<string, bool>>>* preprocess(string filename);
 int letter_count(vector<string> wolrdlist);
 void reset(map<char, vector<pair<string, bool>>>*);
@@ -131,7 +132,7 @@ int main(int argc, char* argv[]) {
 	//(*words)['s'].push_back(make_pair("softw",false));
 	//(*words)['w'].push_back(make_pair("world",false));
 	vector<vector<string>> result;
-	result = fixed_num(words,2);
+	result = mostWords(words);
 	for (auto &worldlist:result) {
 		for (auto& i : worldlist) {
 			cout << i << endl;
@@ -139,10 +140,9 @@ int main(int argc, char* argv[]) {
 		cout << endl;
 	}
 	getchar();
-
 }
 
-vector<string> mostWords(map<char, vector<pair<string, bool>>>* words) {
+vector<vector<string>> mostWords(map<char, vector<pair<string, bool>>>* words) {
 	vector<string> tmpres = vector<string>();
 	vector<string> res = vector<string>();
 	char c = 'a';
@@ -155,16 +155,22 @@ vector<string> mostWords(map<char, vector<pair<string, bool>>>* words) {
 				tmpres.push_back(start);
 				char next = start.at(start.size() - 1);
 				while (words->count(next)) {
-					for (int k = 0; k < (*words)[next].size(); k++) {
+					int k = 0;
+					char old_next;
+					for (; k < (*words)[next].size(); k++) {
 						if (!(*words)[next][k].second) {
 							tmpres.push_back((*words)[next][k].first);
 							(*words)[next][k].second = true;
+							old_next = next;
 							next = (*words)[next][k].first.at((*words)[next][k].first.size() - 1);
 							break;
 						}
 						else {
 							continue;
 						}
+					}
+					if (k == (*words)[old_next].size()) {
+						break;
 					}
 				}
 				if (tmpres.size() > res.size()) {
@@ -182,10 +188,12 @@ vector<string> mostWords(map<char, vector<pair<string, bool>>>* words) {
 			}
 		}
 	}
-	return res;
+	vector<vector<string>> result = vector<vector<string>>();
+	result.push_back(res);
+	return result;
 }
 
-vector<string> mostLetters(map<char, vector<pair<string, bool>>>* words) {
+vector<vector<string>> mostLetters(map<char, vector<pair<string, bool>>>* words) {
 	vector<string> tmpres = vector<string>();
 	vector<string> res = vector<string>();
 	char c = 'a';
@@ -200,16 +208,22 @@ vector<string> mostLetters(map<char, vector<pair<string, bool>>>* words) {
 				tmpres.push_back(start);
 				char next = start.at(start.size() - 1);
 				while (words->count(next)) {
+					int k = 0;
+					char old_next;
 					for (int k = 0; k < (*words)[next].size(); k++) {
 						if (!(*words)[next][k].second) {
 							tmpres.push_back((*words)[next][k].first);
 							(*words)[next][k].second = true;
+							old_next = next;
 							next = (*words)[next][k].first.at((*words)[next][k].first.size() - 1);
 							break;
 						}
 						else {
 							continue;
 						}
+					}
+					if (k == (*words)[old_next].size()) {
+						break;
 					}
 				}
 				res_letters = letter_count(res);
@@ -229,7 +243,9 @@ vector<string> mostLetters(map<char, vector<pair<string, bool>>>* words) {
 			}
 		}
 	}
-	return res;
+	vector<vector<string>> result = vector<vector<string>>();
+	result.push_back(res);
+	return result;
 }
 
 vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words,int n) {
@@ -245,10 +261,13 @@ vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words,in
 				tmpres.push_back(start);
 				char next = start.at(start.size() - 1);
 				while (words->count(next)) {
-					for (int k = 0; k < (*words)[next].size(); k++) {
+					int k = 0;
+					char old_next;
+					for (; k < (*words)[next].size(); k++) {
 						if (!(*words)[next][k].second) {
 							tmpres.push_back((*words)[next][k].first);
 							(*words)[next][k].second = true;
+							old_next = next;
 							next = (*words)[next][k].first.at((*words)[next][k].first.size() - 1);
 							break;
 						}
@@ -256,12 +275,15 @@ vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words,in
 							continue;
 						}
 					}
-				if (tmpres.size()==n) {
-					res.push_back(tmpres);
-					tmpres.clear();
-					reset(words);
-					break;
-				}
+					if (tmpres.size()==n) {
+						res.push_back(tmpres);
+						tmpres.clear();
+						reset(words);
+						break;
+					}
+					if (k == (*words)[old_next].size()) {
+						break;
+					}
 				}
 				tmpres.clear();
 				reset(words);
@@ -272,6 +294,111 @@ vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words,in
 	return res;
 }
 
+vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* words, char head,char tail) {
+	vector<string> tmpres = vector<string>();
+	vector<vector<string>> res = vector<vector<string>>();
+	char c = head;
+	if (c == ' ') {
+		c = 'a';
+		for (; c <= 'z'; c++) {
+			if (words->count(c)) {
+				//tmpres.clear();
+				for (int i = 0; i < (*words)[c].size(); i++) {
+					string start = (*words)[c][i].first;
+					(*words)[c][0].second = true;
+					tmpres.push_back(start);
+					if (tmpres.size() > 0) {
+						if (tail == ' ') {
+							res.push_back(tmpres);
+						}
+						else if (tmpres.back().at(tmpres.back().size() - 1) == tail) {
+							res.push_back(tmpres);
+						}
+					}
+					char next = start.at(start.size() - 1);
+					while (words->count(next)) {
+						int k = 0;
+						char old_next;
+						for (; k < (*words)[next].size(); k++) {
+							if (!(*words)[next][k].second) {
+								tmpres.push_back((*words)[next][k].first);
+								if (tmpres.size() > 0) {
+									if (tail == ' ') {
+										res.push_back(tmpres);
+									}
+									else if (tmpres.back().at(tmpres.back().size() - 1) == tail) {
+										res.push_back(tmpres);
+									}
+								}
+								(*words)[next][k].second = true;
+								old_next = next;
+								next = (*words)[next][k].first.at((*words)[next][k].first.size() - 1);
+								break;
+							}
+							else {
+								continue;
+							}
+						}
+						if (k == (*words)[old_next].size()) {
+							break;
+						}
+					}
+					tmpres.clear();
+					reset(words);
+					continue;
+				}
+			}
+		}	
+	}
+	else if (words->count(c)) {
+		//tmpres.clear();
+		for (int i = 0; i < (*words)[c].size(); i++) {
+			string start = (*words)[c][i].first;
+			(*words)[c][0].second = true;
+			tmpres.push_back(start);
+			if (tmpres.size() > 0) {
+				if (tail == ' ') {
+					res.push_back(tmpres);
+				}
+				else if (tmpres.back().at(tmpres.back().size() - 1) == tail) {
+					res.push_back(tmpres);
+				}
+			}
+			char next = start.at(start.size() - 1);
+			while (words->count(next)) {
+				int k = 0;
+				char old_next;
+				for (int k = 0; k < (*words)[next].size(); k++) {
+					if (!(*words)[next][k].second) {
+						tmpres.push_back((*words)[next][k].first);
+						if (tmpres.size() > 0) {
+							if (tail == ' ') {
+								res.push_back(tmpres);
+							}
+							else if (tmpres.back().at(tmpres.back().size() - 1) == tail) {
+								res.push_back(tmpres);
+							}
+						}
+						(*words)[next][k].second = true;
+						old_next = next;
+						next = (*words)[next][k].first.at((*words)[next][k].first.size() - 1);
+						break;
+					}
+					else {
+						continue;
+					}
+					if (k == (*words)[old_next].size()) {
+						break;
+					}
+				}
+			}
+			tmpres.clear();
+			reset(words);
+			continue;
+		}
+	}
+	return res;
+}
 
 int letter_count(vector<string> wolrdlist) {
 	int res = 0;
