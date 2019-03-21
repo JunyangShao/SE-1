@@ -23,10 +23,17 @@ int word_count;
 vector<vector<string>>* result = new vector<vector<string>>();
 vector<string>* tmpresult = new vector<string>();
 int used[26];
-
 void mostWords2(map<char, vector<pair<string, bool>>>*words);
+void mostLetters2(map<char, vector<pair<string, bool>>>*words);
+void fixed_num2(map<char, vector<pair<string, bool>>>*words,int n);
+void fixed_head2(map<char, vector<pair<string, bool>>>*words, char head);
+void fixed_tail2(map<char, vector<pair<string, bool>>>*words, char tail);
 vector<vector<string>> mostWords(map<char, vector<pair<string, bool>>>*);
-void search(map<char, vector<pair<string, bool>>>*words,char start,int index);
+void search_w(map<char, vector<pair<string, bool>>>*words, char start, int index);
+void search_c(map<char, vector<pair<string, bool>>>*words, char start, int index);
+void search_n(map<char, vector<pair<string, bool>>>*words, char start, int index,int n);
+void search_h(map<char, vector<pair<string, bool>>>*words, char start, int index);
+void search_t(map<char, vector<pair<string, bool>>>*words, char start, int index,char tail);
 vector<vector<string>> mostLetters(map<char, vector<pair<string, bool>>>* words);
 vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words, int n);
 vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* words, char head, char tail);
@@ -122,25 +129,25 @@ int main(int argc, char* argv[]) {
 		inputFileName = argv[argc - 1];
 	}
 	// < -- parser command line arguments finished -- >
-	//auto words = preprocess(inputFileName);
-	map<char,vector<pair<string,bool>>>* words = new map<char,vector<pair<string,bool>>>;
-	(*words)['a'].push_back(make_pair("algebra",false));
-	(*words)['a'].push_back(make_pair("apple",false));
-	(*words)['z'].push_back(make_pair("zoo",false));
-	(*words)['e'].push_back(make_pair("elephant",false));
-	(*words)['u'].push_back(make_pair("under",false));
-	(*words)['f'].push_back(make_pair("fox",false));
-	(*words)['d'].push_back(make_pair("dog",false));
-	(*words)['m'].push_back(make_pair("moon",false));
-	(*words)['l'].push_back(make_pair("leaf",false));
-	(*words)['t'].push_back(make_pair("trick",false));
-	(*words)['h'].push_back(make_pair("hello",false));
-	(*words)['n'].push_back(make_pair("neer",false));
-	(*words)['s'].push_back(make_pair("softw",false));
-	(*words)['w'].push_back(make_pair("world",false));
+	auto words = preprocess(inputFileName);
+	//map<char,vector<pair<string,bool>>>* words = new map<char,vector<pair<string,bool>>>;
+	//(*words)['a'].push_back(make_pair("algebra",false));
+	//(*words)['a'].push_back(make_pair("apple",false));
+	//(*words)['z'].push_back(make_pair("zoo",false));
+	//(*words)['e'].push_back(make_pair("elephant",false));
+	//(*words)['u'].push_back(make_pair("under",false));
+	//(*words)['f'].push_back(make_pair("fox",false));
+	//(*words)['d'].push_back(make_pair("dog",false));
+	//(*words)['m'].push_back(make_pair("moon",false));
+	//(*words)['l'].push_back(make_pair("leaf",false));
+	//(*words)['t'].push_back(make_pair("trick",false));
+	//(*words)['h'].push_back(make_pair("hello",false));
+	//(*words)['n'].push_back(make_pair("neer",false));
+	//(*words)['s'].push_back(make_pair("softw",false));
+	//(*words)['w'].push_back(make_pair("world",false));
 	//vector<vector<string>> result;
-	mostWords2(words);
-	for (auto &worldlist:*result) {
+	fixed_tail2(words,'t');
+	for (auto &worldlist : *result) {
 		for (auto& i : worldlist) {
 			cout << i << endl;
 		}
@@ -148,7 +155,6 @@ int main(int argc, char* argv[]) {
 	}
 	getchar();
 }
-
 vector<vector<string>> mostWords(map<char, vector<pair<string, bool>>>* words) {
 	vector<string> tmpres = vector<string>();
 	vector<string> res = vector<string>();
@@ -199,7 +205,6 @@ vector<vector<string>> mostWords(map<char, vector<pair<string, bool>>>* words) {
 	result.push_back(res);
 	return result;
 }
-
 vector<vector<string>> mostLetters(map<char, vector<pair<string, bool>>>* words) {
 	vector<string> tmpres = vector<string>();
 	vector<string> res = vector<string>();
@@ -254,8 +259,7 @@ vector<vector<string>> mostLetters(map<char, vector<pair<string, bool>>>* words)
 	result.push_back(res);
 	return result;
 }
-
-vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words,int n) {
+vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words, int n) {
 	vector<string> tmpres = vector<string>();
 	vector<vector<string>> res = vector<vector<string>>();
 	char c = 'a';
@@ -282,7 +286,7 @@ vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words,in
 							continue;
 						}
 					}
-					if (tmpres.size()==n) {
+					if (tmpres.size() == n) {
 						res.push_back(tmpres);
 						tmpres.clear();
 						reset(words);
@@ -300,8 +304,7 @@ vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words,in
 	}
 	return res;
 }
-
-vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* words, char head,char tail) {
+vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* words, char head, char tail) {
 	vector<string> tmpres = vector<string>();
 	vector<vector<string>> res = vector<vector<string>>();
 	char c = head;
@@ -355,7 +358,7 @@ vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* wo
 					continue;
 				}
 			}
-		}	
+		}
 	}
 	else if (words->count(c)) {
 		//tmpres.clear();
@@ -406,10 +409,9 @@ vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* wo
 	}
 	return res;
 }
-
 int letter_count(vector<string> wolrdlist) {
 	int res = 0;
-	for (auto word :wolrdlist) {
+	for (auto word : wolrdlist) {
 		res += word.length();
 	}
 	return res;
@@ -421,8 +423,6 @@ void reset(map<char, vector<pair<string, bool>>>* wordmap) {
 		}
 	}
 }
-
-
 map<char, vector<pair<string, bool>>>* preprocess(string filename) {
 	auto worldmap = new map<char, vector<pair<string, bool>>>;
 	word_count = 0;
@@ -480,52 +480,242 @@ map<char, vector<pair<string, bool>>>* preprocess(string filename) {
 	}
 	return worldmap;
 }
-
-void  mostWords2(map<char, vector<pair<string, bool>>>*words){
+void  mostWords2(map<char, vector<pair<string, bool>>>*words) {
 	char c = 'a';
-	for(;c<='z';c++){
-		if(words->count(c)) {
-			tmpresult->push_back((*words)[c][0].first);
-			(*words)[c][0].second = true;
-			used[c-GAP] ++ ;
-			search(words,c,0);
-			tmpresult->pop_back();
-			(*words)[c][0].second = false;
-			used[c-GAP] -- ;
+	for (; c <= 'z'; c++) {
+		if (words->count(c)) {
+			for (int i = 0; i < (*words)[c].size(); i++) {
+				tmpresult->push_back((*words)[c][i].first);
+				(*words)[c][i].second = true;
+				used[c - GAP] ++;
+				search_w(words, c, i);
+				tmpresult->pop_back();
+				(*words)[c][i].second = false;
+				used[c - GAP] --;
+			}
 		}
 	}
 }
+void search_w(map<char, vector<pair<string, bool>>>*words, char start, int index) {
 
-void search(map<char, vector<pair<string, bool>>>*words,char start,int index){
-
-	char next = (*words)[start][index].first.at((*words)[start][index].first.size()-1);
-	if(!words->count(next) || used[next-GAP] == (*words)[next].size()){
-		if(result->empty()){
+	char next = (*words)[start][index].first.at((*words)[start][index].first.size() - 1);
+	if (!words->count(next) || used[next - GAP] == (*words)[next].size()) {
+		if (result->empty()) {
 			result->push_back(*tmpresult);
 		}
-		else{
-			if((*result)[0].size() < tmpresult->size()){
+		else {
+			if ((*result)[0].size() < tmpresult->size()) {
 				result->clear();
 				result->push_back(*tmpresult);
 			}
-			else if((*result)[0].size() == tmpresult->size()){
+			else if ((*result)[0].size() == tmpresult->size()) {
 				result->push_back(*tmpresult);
 			}
 		}
 		return;
 	}
-	else{
-		for(int i = 0;i<(*words)[next].size();i++){
-			if(!(*words)[next][i].second){
+	else {
+		for (int i = 0; i < (*words)[next].size(); i++) {
+			if (!(*words)[next][i].second) {
 				tmpresult->push_back((*words)[next][i].first);
 				(*words)[next][i].second = true;
-				used[next-GAP]++;
-				search(words,(*words)[next][i].first.at(0),i);
+				used[next - GAP]++;
+				search_w(words, (*words)[next][i].first.at(0), i);
 				tmpresult->pop_back();
 				(*words)[next][i].second = false;
-				used[next-GAP] -- ;
+				used[next - GAP] --;
 			}
-			else{
+			else {
+				continue;
+			}
+		}
+	}
+}
+void  mostLetters2(map<char, vector<pair<string, bool>>>*words) {
+	char c = 'a';
+	for (; c <= 'z'; c++) {
+		if (words->count(c)) {
+			for (int i = 0; i < (*words)[c].size(); i++) {
+				tmpresult->push_back((*words)[c][i].first);
+				(*words)[c][i].second = true;
+				used[c - GAP] ++;
+				search_c(words, c, i);
+				tmpresult->pop_back();
+				(*words)[c][i].second = false;
+				used[c - GAP] --;
+			}
+		}
+	}
+}
+void search_c(map<char, vector<pair<string, bool>>>*words, char start, int index) {
+
+	char next = (*words)[start][index].first.at((*words)[start][index].first.size() - 1);
+	if (!words->count(next) || used[next - GAP] == (*words)[next].size()) {
+		if (result->empty()) {
+			result->push_back(*tmpresult);
+		}
+		else {
+			int tmp_count = letter_count(*tmpresult);
+			int res_count = letter_count((*result)[0]);
+			if (res_count < tmp_count) {
+				result->clear();
+				result->push_back(*tmpresult);
+			}
+			else if (res_count == tmp_count) {
+				result->push_back(*tmpresult);
+			}
+		}
+		return;
+	}
+	else {
+		for (int i = 0; i < (*words)[next].size(); i++) {
+			if (!(*words)[next][i].second) {
+				tmpresult->push_back((*words)[next][i].first);
+				(*words)[next][i].second = true;
+				used[next - GAP]++;
+				search_c(words, (*words)[next][i].first.at(0), i);
+				tmpresult->pop_back();
+				(*words)[next][i].second = false;
+				used[next - GAP] --;
+			}
+			else {
+				continue;
+			}
+		}
+	}
+}
+void  fixed_num2(map<char, vector<pair<string, bool>>>*words,int n) {
+	char c = 'a';
+	if (n <= 0) {
+		cout << "ERROR:n shoud be a number >0" << endl;
+		exit(0);
+	}
+	for (; c <= 'z'; c++) {
+		if (words->count(c)) {
+			for (int i = 0; i < (*words)[c].size(); i++) {
+				tmpresult->push_back((*words)[c][i].first);
+				(*words)[c][i].second = true;
+				used[c - GAP] ++;
+				search_n(words, c, i, n - 1);
+				tmpresult->pop_back();
+				(*words)[c][i].second = false;
+				used[c - GAP] --;
+			}
+		}
+	}
+}
+void search_n(map<char, vector<pair<string, bool>>>*words, char start, int index,int n) {
+
+	char next = (*words)[start][index].first.at((*words)[start][index].first.size() - 1);
+	if (!words->count(next) || used[next - GAP] == (*words)[next].size()||n==0) {
+		if (n == 0) {
+			result->push_back(*tmpresult);
+		}
+		return;
+	}
+	else {
+		for (int i = 0; i < (*words)[next].size(); i++) {
+			if (!(*words)[next][i].second) {
+				tmpresult->push_back((*words)[next][i].first);
+				(*words)[next][i].second = true;
+				used[next - GAP]++;
+				search_n(words, (*words)[next][i].first.at(0), i ,n-1);
+				tmpresult->pop_back();
+				(*words)[next][i].second = false;
+				used[next - GAP] --;
+			}
+			else {
+				continue;
+			}
+		}
+	}
+}
+void  fixed_head2(map<char, vector<pair<string, bool>>>*words, char head) {
+	if (head < 'a'||head > 'z') {
+		cout << "ERROR:input head is not a letter" << endl;
+		exit(0);
+	}
+	if (words->count(head)) {
+		for (int i = 0; i < (*words)[head].size(); i++) {
+			tmpresult->push_back((*words)[head][i].first);
+			result->push_back(*tmpresult);
+			(*words)[head][i].second = true;
+			used[head - GAP] ++;
+			search_h(words, head, i);
+			tmpresult->pop_back();
+			(*words)[head][i].second = false;
+			used[head - GAP] --;
+		}
+	}
+}
+void search_h(map<char, vector<pair<string, bool>>>*words, char start, int index) {
+
+	char next = (*words)[start][index].first.at((*words)[start][index].first.size() - 1);
+	if (!words->count(next) || used[next - GAP] == (*words)[next].size()) {
+		return;
+	}
+	else {
+		for (int i = 0; i < (*words)[next].size(); i++) {
+			if (!(*words)[next][i].second) {
+				tmpresult->push_back((*words)[next][i].first);
+				result->push_back(*tmpresult);
+				(*words)[next][i].second = true;
+				used[next - GAP]++;
+				search_h(words, (*words)[next][i].first.at(0), i);
+				tmpresult->pop_back();
+				(*words)[next][i].second = false;
+				used[next - GAP] --;
+			}
+			else {
+				continue;
+			}
+		}
+	}
+}
+void  fixed_tail2(map<char, vector<pair<string, bool>>>*words, char tail) {
+	if (tail < 'a' || tail > 'z') {
+		cout << "ERROR:input tail is not a letter" << endl;
+		exit(0);
+	}
+	char c = 'a';
+	for (; c <= 'z'; c++) {
+		if (words->count(c)) {
+			for (int i = 0; i < (*words)[c].size(); i++) {
+				tmpresult->push_back((*words)[c][i].first);
+				if (tmpresult->back().at(tmpresult->back().size() - 1) == tail) {
+					result->push_back(*tmpresult);
+				}
+				(*words)[c][i].second = true;
+				used[c - GAP] ++;
+				search_t(words, c, i, tail);
+				tmpresult->pop_back();
+				(*words)[c][i].second = false;
+				used[c - GAP] --;
+			}
+		}
+	}
+}
+void search_t(map<char, vector<pair<string, bool>>>*words, char start, int index,char tail) {
+
+	char next = (*words)[start][index].first.at((*words)[start][index].first.size() - 1);
+	if (!words->count(next) || used[next - GAP] == (*words)[next].size()) {
+		return;
+	}
+	else {
+		for (int i = 0; i < (*words)[next].size(); i++) {
+			if (!(*words)[next][i].second) {
+				tmpresult->push_back((*words)[next][i].first);
+				if (tmpresult->back().at(tmpresult->back().size() - 1) == tail) {
+					result->push_back(*tmpresult);
+				}
+				(*words)[next][i].second = true;
+				used[next - GAP]++;
+				search_t(words, (*words)[next][i].first.at(0), i, tail);
+				tmpresult->pop_back();
+				(*words)[next][i].second = false;
+				used[next - GAP] --;
+			}
+			else {
 				continue;
 			}
 		}
