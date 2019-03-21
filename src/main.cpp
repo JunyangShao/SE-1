@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#define GAP 'a'
 extern "C" { FILE __iob_func[3] = { *stdin,*stdout,*stderr }; }
 using std::string;
 using std::cout;
@@ -18,8 +19,14 @@ using std::vector;
 using std::map;
 using std::pair;
 using std::make_pair;
-int world_count;
+int word_count;
+vector<vector<string>>* result = new vector<vector<string>>();
+vector<string>* tmpresult = new vector<string>();
+int used[26];
+
+void mostWords2(map<char, vector<pair<string, bool>>>*words);
 vector<vector<string>> mostWords(map<char, vector<pair<string, bool>>>*);
+void search(map<char, vector<pair<string, bool>>>*words,char start,int index);
 vector<vector<string>> mostLetters(map<char, vector<pair<string, bool>>>* words);
 vector<vector<string>> fixed_num(map<char, vector<pair<string, bool>>>* words, int n);
 vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* words, char head, char tail);
@@ -115,25 +122,25 @@ int main(int argc, char* argv[]) {
 		inputFileName = argv[argc - 1];
 	}
 	// < -- parser command line arguments finished -- >
-	auto words = preprocess(inputFileName);
-	//map<char,vector<pair<string,bool>>>* words = new map<char,vector<pair<string,bool>>>;
-	//(*words)['a'].push_back(make_pair("algebra",false));
-	//(*words)['a'].push_back(make_pair("apple",false));
-	//(*words)['z'].push_back(make_pair("zoo",false));
-	//(*words)['e'].push_back(make_pair("elephant",false));
-	//(*words)['u'].push_back(make_pair("under",false));
-	//(*words)['f'].push_back(make_pair("fox",false));
-	//(*words)['d'].push_back(make_pair("dog",false));
-	//(*words)['m'].push_back(make_pair("moon",false));
-	//(*words)['l'].push_back(make_pair("leaf",false));
-	//(*words)['t'].push_back(make_pair("trick",false));
-	//(*words)['h'].push_back(make_pair("hello",false));
-	//(*words)['n'].push_back(make_pair("neer",false));
-	//(*words)['s'].push_back(make_pair("softw",false));
-	//(*words)['w'].push_back(make_pair("world",false));
-	vector<vector<string>> result;
-	result = mostWords(words);
-	for (auto &worldlist:result) {
+	//auto words = preprocess(inputFileName);
+	map<char,vector<pair<string,bool>>>* words = new map<char,vector<pair<string,bool>>>;
+	(*words)['a'].push_back(make_pair("algebra",false));
+	(*words)['a'].push_back(make_pair("apple",false));
+	(*words)['z'].push_back(make_pair("zoo",false));
+	(*words)['e'].push_back(make_pair("elephant",false));
+	(*words)['u'].push_back(make_pair("under",false));
+	(*words)['f'].push_back(make_pair("fox",false));
+	(*words)['d'].push_back(make_pair("dog",false));
+	(*words)['m'].push_back(make_pair("moon",false));
+	(*words)['l'].push_back(make_pair("leaf",false));
+	(*words)['t'].push_back(make_pair("trick",false));
+	(*words)['h'].push_back(make_pair("hello",false));
+	(*words)['n'].push_back(make_pair("neer",false));
+	(*words)['s'].push_back(make_pair("softw",false));
+	(*words)['w'].push_back(make_pair("world",false));
+	//vector<vector<string>> result;
+	mostWords2(words);
+	for (auto &worldlist:*result) {
 		for (auto& i : worldlist) {
 			cout << i << endl;
 		}
@@ -418,7 +425,7 @@ void reset(map<char, vector<pair<string, bool>>>* wordmap) {
 
 map<char, vector<pair<string, bool>>>* preprocess(string filename) {
 	auto worldmap = new map<char, vector<pair<string, bool>>>;
-	world_count = 0;
+	word_count = 0;
 	std::ifstream ifs(filename);
 	if (ifs) {
 		//cout << "open file success" << endl;
@@ -447,12 +454,12 @@ map<char, vector<pair<string, bool>>>* preprocess(string filename) {
 				pair<string, bool> world(temp, false);
 				worldlist->push_back(world);
 				worldmap->insert(pair<char, vector<pair<string, bool>>>(c, *worldlist));
-				world_count++;
+				word_count++;
 			}
 			else {
 				pair<string, bool> world(temp, false);
 				(*worldmap)[c].push_back(world);
-				world_count++;
+				word_count++;
 			}
 		}
 		temp = ""; //clear temp
@@ -464,7 +471,7 @@ map<char, vector<pair<string, bool>>>* preprocess(string filename) {
 			pair<string, bool> world(temp, false);
 			worldlist->push_back(world);
 			worldmap->insert(pair<char, vector<pair<string, bool>>>(c, *worldlist));
-			world_count++;
+			word_count++;
 		}
 		else {
 			pair<string, bool> world(temp, false);
@@ -472,4 +479,63 @@ map<char, vector<pair<string, bool>>>* preprocess(string filename) {
 		}
 	}
 	return worldmap;
+}
+
+void  mostWords2(map<char, vector<pair<string, bool>>>*words){
+	char c = 'a';
+	for(;c<='z';c++){
+		if(words->count(c)) {
+			tmpresult->push_back((*words)[c][0].first);
+			(*words)[c][0].second = true;
+			used[c-GAP] ++ ;
+			search(words,c,0);
+			tmpresult->pop_back();
+			(*words)[c][0].second = false;
+			used[c-GAP] -- ;
+		}
+//		if(words->count(c)){
+//			for(int i = 0;i<(*words)[c].size();i++){
+//				if(!(*words)[c][i].second){
+//					(*words)[c][i].second = true;
+//					tmpres->push_back((*words)[c][i].first);
+//					used[c-GAP] ++;
+//				}
+//			}
+//		}
+	}
+}
+
+void search(map<char, vector<pair<string, bool>>>*words,char start,int index){
+	char next = (*words)[start][index].first.at((*words)[start][index].first.size()-1);
+	if(!words->count(next) || used[next-GAP] == (*words)[next].size()){
+		if(result->empty()){
+			result->push_back(*tmpresult);
+		}
+		else{
+			if((*result)[0].size() < tmpresult->size()){
+				result->clear();
+				result->push_back(*tmpresult);
+			}
+			else if((*result)[0].size() == tmpresult->size()){
+				result->push_back(*tmpresult);
+			}
+		}
+		return;
+	}
+	else{
+		for(int i = 0;i<(*words)[next].size();i++){
+			if(!(*words)[next][i].second){
+				tmpresult->push_back((*words)[next][i].first);
+				(*words)[next][i].second = true;
+				used[next-GAP]++;
+				search(words,(*words)[next][i].first.at(0),i);
+				tmpresult->pop_back();
+				(*words)[next][i].second = false;
+				used[next-GAP] -- ;
+			}
+			else{
+				continue;
+			}
+		}
+	}
 }
