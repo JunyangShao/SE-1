@@ -177,11 +177,28 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getActionCommand().equals("1")) {
-			System.out.println("1");
+			System.out.println("执行键被按下了");
 			//这里是"执行"的回调函数
+			boolean c1=jcb1.isSelected();
+			boolean c2=jcb2.isSelected();
+			boolean c3=jcb3.isSelected();
+			boolean c4=jcb4.isSelected();
+			boolean c5=jcb5.isSelected();
+			if((c1&&c2) || (c1&&c3) || (c2&&c3)) {
+				System.out.println("不合法输入!不执行");
+				String st = "Invalid Input!";
+				JOptionPane.showMessageDialog(null, st);
+			}
+			else {
+				//TODO 这里填入C API的调用
+				// c1,c2,c3,c4,c5对应 -w -c -h -t -n
+				String text1=ta2.getText();
+				// text1是输入的单词库
+				ta.setText(ta2.getText());
+			}
 		}
 		else if(e.getActionCommand().equals("2")) {
-			System.out.println("2");
+			System.out.println("导入键被按下了");
 			openDia.setVisible(true);//显示打开文件对话框
             
             String dirpath = openDia.getDirectory();//获取打开文件路径并保存到字符串中。
@@ -210,7 +227,7 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 
         }
 		else if(e.getActionCommand().equals("3")) {
-			System.out.println("3");
+			System.out.println("导出键被按下了");
 			if (file == null) {
                 saveDia.setVisible(true);//显示保存文件对话框
                 String dirpath = saveDia.getDirectory();//获取保存文件路径并保存到字符串中。
