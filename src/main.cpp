@@ -1,6 +1,3 @@
-//
-// Creaed by jxq96 on 2019/3/10.
-//
 #include <iostream>
 // unistd.h and getopt.h for parser command line parameters
 #include <unistd.h>
@@ -28,6 +25,15 @@ void mostLetters2(map<char, vector<pair<string, bool>>>*words);
 void fixed_num2(map<char, vector<pair<string, bool>>>*words,int n);
 void fixed_head2(map<char, vector<pair<string, bool>>>*words, char head);
 void fixed_tail2(map<char, vector<pair<string, bool>>>*words, char tail);
+void binary_w_x(map<char, vector<pair<string, bool>>>*words, char type, char head_tail, int n);
+void binary_c_x(map<char, vector<pair<string, bool>>>*words, char type, char head_tail, int n);
+void binary_n_x(map<char, vector<pair<string, bool>>>*words, char type, char head_tail, int n);
+void binary_t_h(map<char, vector<pair<string, bool>>>*words, char head, char tail);
+void triple_w_x1_x2(map<char, vector<pair<string, bool>>>*words, char type1, char type2, char head, char tail, int n);
+void triple_c_x1_x2(map<char, vector<pair<string, bool>>>*words, char type1, char type2, char head, char tail, int n);
+void triple_h_t_n(map<char, vector<pair<string, bool>>>*words, char head, char tail, int n);
+void quadruple_c_h_t_n(map<char, vector<pair<string, bool>>>*words, char head, char tail, int n);
+void quadruple_w_h_t_n(map<char, vector<pair<string, bool>>>*words, char head, char tail, int n);
 vector<vector<string>> mostWords(map<char, vector<pair<string, bool>>>*);
 void search_w(map<char, vector<pair<string, bool>>>*words, char start, int index);
 void search_c(map<char, vector<pair<string, bool>>>*words, char start, int index);
@@ -43,7 +49,8 @@ void reset(map<char, vector<pair<string, bool>>>*);
 int main(int argc, char* argv[]) {
 	// < -- parser command arguments -- >
 	const char* optstring = "wch:t:n:";
-	bool choice = true; // most word or most character, true:word,false:character
+	bool choice_w = false; 
+	bool choice_c = false;
 	bool head = false;
 	bool tail = false;
 	bool fixedlength = false;
@@ -62,7 +69,7 @@ int main(int argc, char* argv[]) {
 				exit(0);
 			}
 			else {
-				choice = true;
+				choice_w= true;
 				conflictflag = true;
 				break;
 			}
@@ -73,7 +80,7 @@ int main(int argc, char* argv[]) {
 				exit(0);
 			}
 			else {
-				choice = false;
+				choice_c = true;
 				//inputFileName = optarg;
 				conflictflag = true;
 				break;
@@ -146,7 +153,103 @@ int main(int argc, char* argv[]) {
 	//(*words)['s'].push_back(make_pair("softw",false));
 	//(*words)['w'].push_back(make_pair("world",false));
 	//vector<vector<string>> result;
-	fixed_tail2(words,'t');
+	if (choice_w&&!choice_c&&!head&&!tail&&!fixedlength) {
+		//£¨1£¬0£¬0£¬0£¬0£©
+		mostWords2(words);
+	}
+	else if (!choice_w && choice_c && !head && !tail && !fixedlength) {
+		//£¨0£¬1£¬0£¬0£¬0£©
+		mostLetters2(words);
+	}
+	else if (!choice_w && !choice_c && head && !tail && !fixedlength) {
+		//£¨0£¬0£¬1£¬0£¬0£©
+		fixed_head2(words,headChar);
+	}
+	else if (!choice_w && !choice_c && !head && tail && !fixedlength) {
+		//£¨0£¬0£¬0£¬1£¬0£©
+		fixed_tail2(words,tailChar);
+	}
+	else if (!choice_w && !choice_c && !head && !tail && fixedlength) {
+		//£¨0£¬0£¬0£¬0£¬1£©
+		fixed_num2(words,length);
+	}
+	else if (choice_w && !choice_c && head && !tail && !fixedlength) {
+		//£¨1£¬0£¬1£¬0£¬0£©
+		binary_w_x(words,'h',headChar,0);
+	}
+	else if (choice_w && !choice_c && !head && tail && !fixedlength) {
+		//£¨1£¬0£¬0£¬1£¬0£©
+		binary_w_x(words, 't', tailChar, 0);
+	}
+	else if (choice_w && !choice_c && !head && !tail && fixedlength) {
+		//£¨1£¬0£¬0£¬0£¬1£©
+		binary_w_x(words, 'n', 'a', length);
+	}
+	else if (!choice_w && choice_c && head && !tail && !fixedlength) {
+		//£¨0£¬1£¬1£¬0£¬0£©
+		binary_c_x(words, 'h', headChar, 0);
+	}
+	else if (!choice_w && choice_c && !head && tail && !fixedlength) {
+		//£¨0£¬1£¬0£¬1£¬0£©
+		binary_c_x(words, 't', tailChar, 0);
+	}
+	else if (!choice_w && choice_c && !head && !tail && fixedlength) {
+		//£¨0£¬1£¬0£¬0£¬1£©
+		binary_c_x(words, 'n', 'a', length);
+	}
+	else if (!choice_w && !choice_c && head && tail && !fixedlength) {
+		//£¨0£¬0£¬1£¬1£¬0£©
+		binary_t_h(words, headChar, tailChar);
+	}
+	else if (!choice_w && !choice_c && head && !tail && fixedlength) {
+		//£¨0£¬0£¬1£¬0£¬1£©
+		binary_n_x(words, 'h', headChar, length);
+	}
+	else if (!choice_w && !choice_c && !head && tail && fixedlength) {
+		//£¨0£¬0£¬0£¬1£¬1£©
+		binary_n_x(words, 't', tailChar, length);
+	}
+	else if (choice_w && !choice_c && head && tail && !fixedlength) {
+		//£¨1£¬0£¬1£¬1£¬0£©
+		triple_w_x1_x2(words, 't', 'h', headChar, tailChar, 0);
+	}
+	else if (choice_w && !choice_c && head && !tail && fixedlength) {
+		//£¨1£¬0£¬1£¬0£¬1£©
+		triple_w_x1_x2(words, 'h', 'n', headChar, 'a', length);
+	}
+	else if (choice_w && !choice_c && !head && tail && fixedlength) {
+		//£¨1£¬0£¬0£¬1£¬0£©
+		triple_w_x1_x2(words, 't', 'n', 'a', headChar, length);
+	}
+	else if (!choice_w && choice_c && head && tail && !fixedlength) {
+		//£¨0£¬1£¬1£¬1£¬0£©
+		triple_c_x1_x2(words, 't', 'h', headChar, tailChar, 0);
+	}
+	else if (!choice_w && choice_c && head && !tail && fixedlength) {
+		//£¨0£¬1£¬1£¬0£¬1£©
+		triple_c_x1_x2(words, 'h', 'n', headChar, 'a', length);
+	}
+	else if (!choice_w && choice_c && !head && tail && fixedlength) {
+		//£¨0£¬1£¬0£¬1£¬1£©
+		triple_c_x1_x2(words, 't', 'n', 'a', headChar, length);
+	}
+	else if (!choice_w && !choice_c && head && tail && fixedlength) {
+		//£¨0£¬0£¬1£¬1£¬1£©
+		triple_h_t_n(words, headChar, tailChar, length);
+	}
+	else if (choice_w && !choice_c && head && tail && fixedlength) {
+		//£¨1£¬0£¬1£¬1£¬1£©
+		quadruple_w_h_t_n(words, headChar, tailChar, length);
+	}
+	else if (!choice_w && choice_c && head && tail && fixedlength) {
+		//£¨0£¬1£¬1£¬1£¬1£©
+		quadruple_c_h_t_n(words, headChar, tailChar, length);
+	}
+	else {
+		cout << "ERROR:invaild choices" << endl;
+		exit(0);
+	}
+	//triple_c_x1_x2(words,'t','h','p','m',0);
 	for (auto &worldlist : *result) {
 		for (auto& i : worldlist) {
 			cout << i << endl;
@@ -720,4 +823,221 @@ void search_t(map<char, vector<pair<string, bool>>>*words, char start, int index
 			}
 		}
 	}
+}
+void binary_w_x(map<char, vector<pair<string, bool>>>*words, char type, char head_tail, int n) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	if (type == 't') {
+		fixed_tail2(words, head_tail);
+	}
+	else if (type == 'h') {
+		fixed_head2(words, head_tail);
+	}
+	else if (type == 'n') {
+		fixed_num2(words, n);
+	}
+	else {
+		cout << "EORROR:invaild combination of choices" << endl;
+		exit(0);
+
+	}
+	if (result->size() == 0) {
+		return;
+	}
+	tmpres->push_back((*result)[0]);
+	for (auto &worldlist : *result) {
+		if (worldlist.size() > (*tmpres)[0].size()) {
+			tmpres->clear();
+			tmpres->push_back(worldlist);
+		}
+		else if ((*tmpres)[0].size() == worldlist.size()&&worldlist!=(*result)[0]) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+}
+void binary_c_x(map<char, vector<pair<string, bool>>>*words, char type, char head_tail, int n) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	if (type == 't') {
+		fixed_tail2(words, head_tail);
+	}
+	else if (type == 'h') {
+		fixed_head2(words, head_tail);
+	}
+	else if (type == 'n') {
+		fixed_num2(words, n);
+	}
+	else {
+		cout << "EORROR:invaild combination of choices" << endl	;
+		exit(0);
+
+	}
+	if (result->size() == 0) {
+		return;
+	}
+	tmpres->push_back((*result)[0]);
+	for (auto &worldlist : *result) {
+		int worldlist_count = letter_count(worldlist);
+		int tmpres_count = letter_count((*tmpres)[0]);
+		if (worldlist_count > tmpres_count) {
+			tmpres->clear();
+			tmpres->push_back(worldlist);
+		}
+		else if (worldlist_count == tmpres_count && worldlist != (*result)[0]) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+}
+void binary_n_x(map<char, vector<pair<string, bool>>>*words, char type, char head_tail, int n) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	if (type == 't') {
+		fixed_tail2(words, head_tail);
+	}
+	else if (type == 'h') {
+		fixed_head2(words, head_tail);
+	}
+	else {
+		cout << "EORROR:invaild combination of choices" << endl;
+		exit(0);
+
+	}
+	if (result->size() == 0) {
+		return;
+	}
+	for (auto &worldlist : *result) {
+		if (worldlist.size() == n) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+}
+void binary_t_h(map<char, vector<pair<string, bool>>>*words, char head, char tail) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	fixed_head2(words, head);
+	if (result->size() == 0) {
+		return;
+	}
+	for (auto &worldlist : *result) {
+		if (worldlist.back().at(worldlist.back().size() - 1) == tail) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+}
+void triple_w_x1_x2(map<char, vector<pair<string, bool>>>*words, char type1, char type2, char head, char tail, int n) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	if ((type1 == 't'&& type2 == 'h')|| (type1 == 'h'&& type2 == 't')) {
+		binary_t_h(words, head, tail);
+	}
+	else if ((type1 == 't'&& type2 == 'n') || (type1 == 'n'&& type2 == 't')) {
+		binary_n_x(words, 't', tail, n);
+	}
+	else if ((type1 == 'h'&& type2 == 'n') || (type1 == 'n'&& type2 == 'h')) {
+		binary_n_x(words, 'h', head, n);
+	}
+	else {
+		cout << "EORROR:invaild combination of choices" << endl;
+		exit(0);
+
+	}
+	if (result->size() == 0) {
+		return;
+	}
+	tmpres->push_back((*result)[0]);
+	for (auto &worldlist : *result) {
+		if (worldlist.size() > (*tmpres)[0].size()) {
+			tmpres->clear();
+			tmpres->push_back(worldlist);
+		}
+		else if ((*tmpres)[0].size() == worldlist.size() && worldlist != (*result)[0]) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+}
+void triple_c_x1_x2(map<char, vector<pair<string, bool>>>*words, char type1, char type2, char head, char tail, int n) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	if ((type1 == 't'&& type2 == 'h') || (type1 == 'h'&& type2 == 't')) {
+		binary_t_h(words, head, tail);
+	}
+	else if ((type1 == 't'&& type2 == 'n') || (type1 == 'n'&& type2 == 't')) {
+		binary_n_x(words, 't', tail, n);
+	}
+	else if ((type1 == 'h'&& type2 == 'n') || (type1 == 'n'&& type2 == 'h')) {
+		binary_n_x(words, 'h', head, n);
+	}
+	else {
+		cout << "EORROR:invaild combination of choices" << endl;
+		exit(0);
+
+	}
+	if (result->size() == 0) {
+		return;
+	}
+	tmpres->push_back((*result)[0]);
+	for (auto &worldlist : *result) {
+		int worldlist_count = letter_count(worldlist);
+		int tmpres_count = letter_count((*tmpres)[0]);
+		if (worldlist_count > tmpres_count) {
+			tmpres->clear();
+			tmpres->push_back(worldlist);
+		}
+		else if (worldlist_count == tmpres_count && worldlist != (*result)[0]) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+}
+void triple_h_t_n(map<char, vector<pair<string, bool>>>*words, char head, char tail, int n) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	binary_t_h(words,head,tail);
+	if (result->size() == 0) {
+		return;
+	}
+	for (auto &worldlist : *result) {
+		if (worldlist.size() == n) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+}
+void quadruple_c_h_t_n(map<char, vector<pair<string, bool>>>*words, char head, char tail, int n) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	triple_h_t_n(words, head, tail, n);
+	if (result->size() == 0) {
+		return;
+	}
+	tmpres->push_back((*result)[0]);
+	for (auto &worldlist : *result) {
+		int worldlist_count = letter_count(worldlist);
+		int tmpres_count = letter_count((*tmpres)[0]);
+		if (worldlist_count > tmpres_count) {
+			tmpres->clear();
+			tmpres->push_back(worldlist);
+		}
+		else if (worldlist_count == tmpres_count && worldlist != (*result)[0]) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+
+}
+void quadruple_w_h_t_n(map<char, vector<pair<string, bool>>>*words, char head, char tail, int n) {
+	vector<vector<string>>* tmpres = new vector<vector<string>>();
+	triple_h_t_n(words, head, tail, n);
+	if (result->size() == 0) {
+		return;
+	}
+	tmpres->push_back((*result)[0]);
+	for (auto &worldlist : *result) {
+		if (worldlist.size() > (*tmpres)[0].size()) {
+			tmpres->clear();
+			tmpres->push_back(worldlist);
+		}
+		else if ((*tmpres)[0].size() == worldlist.size() && worldlist != (*result)[0]) {
+			tmpres->push_back(worldlist);
+		}
+	}
+	(*result) = (*tmpres);
+
 }
