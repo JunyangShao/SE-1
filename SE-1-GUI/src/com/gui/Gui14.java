@@ -2,6 +2,7 @@ package com.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Menu;
@@ -15,13 +16,22 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
+import com.sun.jna.Library;
+import com.sun.jna.Native;
 public class Gui14 extends JFrame implements ActionListener, ItemListener{
-	//定义组件
+    public interface CLibrary extends Library{
+        CLibrary INSTANCE =(CLibrary)Native.loadLibrary("E:\\cyglibrary",CLibrary.class);
+        String getanswer(int argc,String[] argv,int[] error);
+    }
 	JPanel jp0,jp1, jp2, jp3;
 	JLabel jl1,jl2,jl3;
 	JButton jb1, jb2,jb3;
@@ -64,11 +74,11 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 		tf2.setEditable(false);
 		tf3 = new JTextField(2);
 		tf3.setEditable(false);
-		ta = new JTextArea(10, 20);
+		ta = new JTextArea(20, 40);
 		ta.setEditable(false);
-		ta.append("Hello, world!");
-		ta2 = new JTextArea(10, 20);
-		ta2.append("Hello, world!");
+		//ta.append("Hello, world!");
+		ta2 = new JTextArea(20, 40);
+		//ta2.append("Hello, world!");
 		
 		//ta.setWrapStyleWord(true);
 		//ta.setLineWrap(true);
@@ -143,13 +153,13 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 		add(jp3);
 		
 		//设置窗体
-		setSize(550, 340);
-		setLocation(0, 0);
+		setSize(900, 550);
+		setLocation(360,180);
 		GridBagConstraints s= new GridBagConstraints();//定义一个GridBagConstraints， 
 		s.fill = GridBagConstraints.BOTH; 
-		s.gridwidth=0;//该方法是设置组件水平所占用的格子数，如果为0，就说明该组件是该行的最后一个 
-		s.weightx = 0;//该方法设置组件水平的拉伸幅度，如果为0就说明不拉伸，不为0就随着窗口增大进行拉伸，0到1之间 
-		s.weighty=0;//该方法设置组件垂直的拉伸幅度，如果为0就说明不拉伸，不为0就随着窗口增大进行拉伸，0到1之间 
+		s.gridwidth=0;
+		s.weightx = 0;
+		s.weighty=0;
 		layout.setConstraints(jp0, s);//设置组件 
 		s.gridwidth=0; 
 		s.weightx = 0; 
@@ -184,18 +194,167 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 			boolean c3=jcb3.isSelected();
 			boolean c4=jcb4.isSelected();
 			boolean c5=jcb5.isSelected();
-			if((c1&&c2) || (c1&&c3) || (c2&&c3)) {
-				System.out.println("不合法输入!不执行");
-				String st = "Invalid Input!";
-				JOptionPane.showMessageDialog(null, st);
+			int[] flaggy= {0};
+			
+			//TODO 这里填入C API的调用
+			// c1,c2,c3,c4,c5对应 -w -c -h -t -n
+			try {
+				file=new File("intermediate");
+				BufferedWriter bufw = new BufferedWriter(new FileWriter(file));
+				String t=null;
+				while((t=ta2.getText())!=null) {
+					System.out.println(t);
+					bufw.write(t);;
+					break;
+				}
+				bufw.close();
 			}
-			else {
-				//TODO 这里填入C API的调用
-				// c1,c2,c3,c4,c5对应 -w -c -h -t -n
-				String text1=ta2.getText();
-				// text1是输入的单词库
-				ta.setText(ta2.getText());
+			catch(IOException e1){
+				e1.printStackTrace();
 			}
+			// text1是输入的单词库
+			String[] inputs= new String[15];
+			//byte inputs2[][]=new byte[15][15];
+			ArrayList alist=new ArrayList();
+			alist.add("back.exe");
+			String inn = "";
+			int i = 1;
+			
+			if(c1) {
+				inputs[0]="-w";
+				i=i+1;
+				inn=inn+" -w";
+				alist.add("-w");
+			}
+			if(c2) {
+				inputs[1]="-c";
+				i=i+1;
+				inn=inn+" -c";
+				alist.add("-c");
+			}
+			if(c3) {
+				inputs[2]="-h";
+				inputs[3]=tf1.getText();
+				i=i+2;
+				inn=inn+" -h "+ tf1.getText();
+				System.out.println(tf1.getText());
+				alist.add("-h");
+				alist.add(tf1.getText());
+			}
+			if(c4) {
+				inputs[4]="-t";
+				inputs[5]=tf2.getText();
+				i=i+2;
+				inn=inn+" -t "+ tf2.getText();
+				System.out.println(tf2.getText());
+				alist.add("-t");
+				alist.add(tf2.getText());
+			}
+			if(c5) {
+				inputs[6]="-n";
+				inputs[7]=tf3.getText();
+				i=i+2;
+				inn=inn+" -n "+ tf3.getText();
+				System.out.println(tf3.getText());
+				alist.add("-n");
+				alist.add(tf3.getText());
+			}
+			i=i+1;
+			String inn2= "";
+			inn2=inn2+inn;
+			inn2=inn2+ " intermediate";
+			alist.add("intermediate");
+			String[] cmd = (String[]) alist.toArray(new String[alist.size()]);
+			
+			System.out.println(inn2);
+			
+			
+			try {
+				Runtime.getRuntime().exec(cmd);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				System.out.println("nmsl");
+			}
+			
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			ta.setText(null);
+            file = new File("result");//创建新的路径和名称
+
+            try {
+                BufferedReader bufr = new BufferedReader(new FileReader(file));
+                String line = null;
+                line=bufr.readLine();
+                
+                
+                int flag = Integer.valueOf(line).intValue();
+                if(flag==0) {
+                	while ((line = bufr.readLine()) != null) {
+                        ta.append(line + "\r\n");
+                        System.out.println(line);
+                    }
+                    bufr.close();
+                }
+                else {
+                	String warningm="";
+                	switch(flag) {
+	                	case 1: {
+	                		warningm="ERROR:You can only assign one character as head/tail character!";
+	                		break;
+	                	}
+	                	case 2: {
+	                		warningm="ERROR:You must assign a number of the -n parameter,line -n number!";
+	                		break;
+	                	}
+	                	case 3: {
+	                		warningm="ERROR:unrecognized parameter!";
+	                		break;
+	                	}
+	                	case 4: {
+	                		warningm="ERROR:You must have a file to input!";
+	                		break;
+	                	}
+	                	case 5: {
+	                		warningm="ERROR:invaild combination of choices!";
+	                		break;
+	                	}
+	                	case 6: {
+	                		warningm="ERROR:The number for fixed length is too large!";
+	                		break;
+	                	}
+	                	case 7: {
+	                		warningm="ERROR:The number for fixed length should be bigger than 0!";
+	                		break;
+	                	}
+	                	case 8: {
+	                		warningm="ERROR:The char for head/tail should be a letter!";
+	                		break;
+	                	}
+	                	case 9: {
+	                		warningm="ERROR:The scale of input is below than two words !";
+	                		break;
+	                	}
+	                	default: warningm="UNKNOWN ERROR!";
+                	}
+                	Object[] options = { "OK" }; 
+                    JOptionPane.showOptionDialog(null, warningm, "Warning", 
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, 
+                    null, options, options[0]);
+                }
+                
+            } catch (FileNotFoundException e1) {
+                
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                // 抛出IO异常
+                e1.printStackTrace();
+            }
+			
 		}
 		else if(e.getActionCommand().equals("2")) {
 			System.out.println("导入键被按下了");
