@@ -76,14 +76,8 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 		tf3.setEditable(false);
 		ta = new JTextArea(20, 40);
 		ta.setEditable(false);
-		//ta.append("Hello, world!");
 		ta2 = new JTextArea(20, 40);
-		//ta2.append("Hello, world!");
 		
-		//ta.setWrapStyleWord(true);
-		//ta.setLineWrap(true);
-		//ta2.setWrapStyleWord(true);
-		//ta2.setLineWrap(true);
 		openDia = new FileDialog(f, "打开", FileDialog.LOAD);
 		saveDia = new FileDialog(f, "保存", FileDialog.SAVE);
 		
@@ -268,92 +262,105 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 			
 			System.out.println(inn2);
 			
-			
+			ta.setText(null);
+            file = new File("result");//创建新的路径和名称
+            
+            try {
+            	 BufferedWriter bufw = new BufferedWriter(new FileWriter(file));
+                 
+                 bufw.write("");//
+                 bufw.flush();
+            }
+            catch(IOException e1) {
+            	e1.printStackTrace();
+            }
+            
 			try {
 				Runtime.getRuntime().exec(cmd);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-				System.out.println("nmsl");
+				
 			}
 			
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
+			String line = null;
+			while(true) {
+				try {
+					try {
+	    				Thread.sleep(20);
+	    			} catch (InterruptedException e2) {
+	    				// TODO Auto-generated catch block
+	    				e2.printStackTrace();
+	    			}
+	                BufferedReader bufr = new BufferedReader(new FileReader(file));
+	                
+	                line=bufr.readLine();
+	                if(line==null)continue;
+	                
+	                int flag = Integer.valueOf(line).intValue();
+	                if(flag==0) {
+	                	while ((line = bufr.readLine()) != null) {
+	                        ta.append(line + "\r\n");
+	                        System.out.println(line);
+	                    }
+	                    bufr.close();
+	                }
+	                else {
+	                	String warningm="";
+	                	switch(flag) {
+		                	case 1: {
+		                		warningm="ERROR:You can only assign one character as head/tail character!";
+		                		break;
+		                	}
+		                	case 2: {
+		                		warningm="ERROR:You must assign a number of the -n parameter,line -n number!";
+		                		break;
+		                	}
+		                	case 3: {
+		                		warningm="ERROR:unrecognized parameter!";
+		                		break;
+		                	}
+		                	case 4: {
+		                		warningm="ERROR:You must have a file to input!";
+		                		break;
+		                	}
+		                	case 5: {
+		                		warningm="ERROR:invaild combination of choices!";
+		                		break;
+		                	}
+		                	case 6: {
+		                		warningm="ERROR:The number for fixed length is too large!";
+		                		break;
+		                	}
+		                	case 7: {
+		                		warningm="ERROR:The number for fixed length should be bigger than 0!";
+		                		break;
+		                	}
+		                	case 8: {
+		                		warningm="ERROR:The char for head/tail should be a letter!";
+		                		break;
+		                	}
+		                	case 9: {
+		                		warningm="ERROR:The scale of input is below than two words !";
+		                		break;
+		                	}
+		                	default: warningm="UNKNOWN ERROR!";
+	                	}
+	                	Object[] options = { "OK" }; 
+	                    JOptionPane.showOptionDialog(null, warningm, "Warning", 
+	                    JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, 
+	                    null, options, options[0]);
+	                }
+	                break;
+	                
+	            } catch (FileNotFoundException e1) {
+	                
+	                e1.printStackTrace();
+	            } catch (IOException e1) {
+	                // 抛出IO异常
+	                e1.printStackTrace();
+	            }
 			}
-			ta.setText(null);
-            file = new File("result");//创建新的路径和名称
-
-            try {
-                BufferedReader bufr = new BufferedReader(new FileReader(file));
-                String line = null;
-                line=bufr.readLine();
-                
-                
-                int flag = Integer.valueOf(line).intValue();
-                if(flag==0) {
-                	while ((line = bufr.readLine()) != null) {
-                        ta.append(line + "\r\n");
-                        System.out.println(line);
-                    }
-                    bufr.close();
-                }
-                else {
-                	String warningm="";
-                	switch(flag) {
-	                	case 1: {
-	                		warningm="ERROR:You can only assign one character as head/tail character!";
-	                		break;
-	                	}
-	                	case 2: {
-	                		warningm="ERROR:You must assign a number of the -n parameter,line -n number!";
-	                		break;
-	                	}
-	                	case 3: {
-	                		warningm="ERROR:unrecognized parameter!";
-	                		break;
-	                	}
-	                	case 4: {
-	                		warningm="ERROR:You must have a file to input!";
-	                		break;
-	                	}
-	                	case 5: {
-	                		warningm="ERROR:invaild combination of choices!";
-	                		break;
-	                	}
-	                	case 6: {
-	                		warningm="ERROR:The number for fixed length is too large!";
-	                		break;
-	                	}
-	                	case 7: {
-	                		warningm="ERROR:The number for fixed length should be bigger than 0!";
-	                		break;
-	                	}
-	                	case 8: {
-	                		warningm="ERROR:The char for head/tail should be a letter!";
-	                		break;
-	                	}
-	                	case 9: {
-	                		warningm="ERROR:The scale of input is below than two words !";
-	                		break;
-	                	}
-	                	default: warningm="UNKNOWN ERROR!";
-                	}
-                	Object[] options = { "OK" }; 
-                    JOptionPane.showOptionDialog(null, warningm, "Warning", 
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, 
-                    null, options, options[0]);
-                }
-                
-            } catch (FileNotFoundException e1) {
-                
-                e1.printStackTrace();
-            } catch (IOException e1) {
-                // 抛出IO异常
-                e1.printStackTrace();
-            }
 			
 		}
 		else if(e.getActionCommand().equals("2")) {
