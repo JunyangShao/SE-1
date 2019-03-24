@@ -74,9 +74,9 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 		tf2.setEditable(false);
 		tf3 = new JTextField(2);
 		tf3.setEditable(false);
-		ta = new JTextArea(20, 40);
+		ta = new JTextArea(10, 20);
 		ta.setEditable(false);
-		ta2 = new JTextArea(20, 40);
+		ta2 = new JTextArea(10, 20);
 		
 		openDia = new FileDialog(f, "打开", FileDialog.LOAD);
 		saveDia = new FileDialog(f, "保存", FileDialog.SAVE);
@@ -147,7 +147,7 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 		add(jp3);
 		
 		//设置窗体
-		setSize(900, 550);
+		setSize(500, 380);
 		setLocation(360,180);
 		GridBagConstraints s= new GridBagConstraints();//定义一个GridBagConstraints， 
 		s.fill = GridBagConstraints.BOTH; 
@@ -270,6 +270,8 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
                  
                  bufw.write("");//
                  bufw.flush();
+                 bufw.close();
+                 
             }
             catch(IOException e1) {
             	e1.printStackTrace();
@@ -281,13 +283,14 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 				
+				
 			}
 			
 			String line = null;
 			while(true) {
 				try {
 					try {
-	    				Thread.sleep(20);
+	    				Thread.sleep(10);
 	    			} catch (InterruptedException e2) {
 	    				// TODO Auto-generated catch block
 	    				e2.printStackTrace();
@@ -299,8 +302,13 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
 	                
 	                int flag = Integer.valueOf(line).intValue();
 	                if(flag==0) {
+	                	line=bufr.readLine();
+	                	int flag0 = Integer.valueOf(line).intValue();
+		                if(flag0==0) {
+		                	line=bufr.readLine();
+		                }		                
 	                	while ((line = bufr.readLine()) != null) {
-	                        ta.append(line + "\r\n");
+	                		ta.append(line + "\r\n");    
 	                        System.out.println(line);
 	                    }
 	                    bufr.close();
@@ -394,7 +402,7 @@ public class Gui14 extends JFrame implements ActionListener, ItemListener{
         }
 		else if(e.getActionCommand().equals("3")) {
 			System.out.println("导出键被按下了");
-			if (file == null) {
+			if (true) {
                 saveDia.setVisible(true);//显示保存文件对话框
                 String dirpath = saveDia.getDirectory();//获取保存文件路径并保存到字符串中。
                 String fileName = saveDia.getFile();////获取打保存文件名称并保存到字符串中
