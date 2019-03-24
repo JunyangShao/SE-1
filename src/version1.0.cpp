@@ -8,6 +8,7 @@
 #include <map>
 #include <fstream>
 #define GAP 'a'
+#define PATH "result"
 extern "C" { FILE __iob_func[3] = { *stdin,*stdout,*stderr }; }
 using std::string;
 using std::cout;
@@ -46,14 +47,13 @@ vector<vector<string>> fixed_head_tail(map<char, vector<pair<string, bool>>>* wo
 map<char, vector<pair<string, bool>>>* preprocess(string filename);
 int letter_count(vector<string> wolrdlist);
 void reset(map<char, vector<pair<string, bool>>>*);
-string getanswer(int argc, char* argv[]);
+char* getanswer(int argc, char* argv[],int *error);
 int main(int argc, char* argv[]) {
-	string answer;
-	answer = getanswer(argc, argv);
-	cout << answer << endl;
-	getchar();
+	int error = 0;
+	getanswer(argc, argv, &error);
+	return 0;
 }
-string getanswer(int argc, char* argv[]) {
+char* getanswer(int argc, char* argv[],int *error) {
 	// < -- parser command arguments -- >
 	const char* optstring = "wch:t:n:";
 	bool choice_w = false;
@@ -62,26 +62,30 @@ string getanswer(int argc, char* argv[]) {
 	bool tail = false;
 	bool fixedlength = false;
 	// if constraint head character or tail character
-	char headChar, tailChar;
+	char headChar = 'a';
+	char tailChar = 'a';
 	string inputFileName;
 	int c;
 	opterr = 0;
-	int length; // the length of the word chain assigned
+	*error = 0;
+	int length = 0; // the length of the word chain assigned
 	while ((c = getopt(argc, argv, optstring)) != -1) {
 		switch (c) {
 		case 'w': {
-				choice_w = true;
-				break;
+			choice_w = true;
+			break;
 		}
 		case 'c': {
-				choice_c = true;
-				//inputFileName = optarg;
-				break;
+			choice_c = true;
+			//inputFileName = optarg;
+			break;
 		}
 		case 'h': {
 			if (strlen(optarg) > 1 || opterr) {
-				cout << "ERROR:You can only assign one character as head character" << endl;
-				exit(0);
+				(*error) = 1;
+				std::ofstream ofs(PATH);
+				ofs << *error << endl;
+				return NULL;
 			}
 			else {
 				head = true;
@@ -91,8 +95,10 @@ string getanswer(int argc, char* argv[]) {
 		}
 		case 't': {
 			if (strlen(optarg) > 1 || opterr) {
-				cout << "ERROR:You can only assign one character as tail character" << endl;
-				exit(0);
+				(*error) = 1;
+				std::ofstream ofs(PATH);
+				ofs << *error << endl;
+				return NULL;
 			}
 			else {
 				tail = true;
@@ -102,8 +108,10 @@ string getanswer(int argc, char* argv[]) {
 		}
 		case 'n': {
 			if (opterr) {
-				cout << "ERROR:You must assign a number of the -n parameter,line -n number";
-				exit(0);
+				(*error) = 2;
+				std::ofstream ofs(PATH);
+				ofs << *error << endl;
+				return NULL;
 			}
 			else {
 				length = atoi(optarg);
@@ -112,23 +120,60 @@ string getanswer(int argc, char* argv[]) {
 			}
 		}
 		default:
-			cout << "ERROR:unrecognized parameter!" << endl;
+			(*error) = 3;
+			std::ofstream ofs(PATH);
+			ofs << *error << endl;
+			return NULL;
 			break;
 		}
 	}
 	if (argc == optind) {
-		cout << "ERROR:You must have a file to input" << endl;
-		exit(0);
+		(*error) = 4;
+		std::ofstream ofs(PATH);
+		ofs << *error << endl;
+		return NULL;
 	}
 	else {
 		inputFileName = argv[argc - 1];
 	}
 	if (choice_c && choice_w) {
-		cout << "ERROR:invaild choices" << endl;
-		exit(0);
+		(*error) = 5;
+		std::ofstream ofs(PATH);
+		ofs << *error << endl;
+		return NULL;
 	}
 	// < -- parser command line arguments finished -- >
 	auto words = preprocess(inputFileName);
+	if (fixedlength&&length > word_count) {
+		(*error) = 6;
+		std::ofstream ofs(PATH);
+		ofs << *error << endl;
+		return NULL;
+	}
+	if (fixedlength&&length <=0 ) {
+		(*error) = 7;
+		std::ofstream ofs(PATH);
+		ofs << *error << endl;
+		return NULL;
+	}
+	if (head && !((headChar<='z'&&headChar>='a')||(headChar<='Z'&&headChar>='A'))) {
+		(*error) = 8;
+		std::ofstream ofs(PATH);
+		ofs << *error << endl;
+		return NULL;
+	}
+	if (tail && !((tailChar <= 'z'&&tailChar >= 'a') || (tailChar <= 'Z'&&tailChar >= 'A'))) {
+		(*error) = 8;
+		std::ofstream ofs(PATH);
+		ofs << *error << endl;
+		return NULL;
+	}
+	if (word_count<2) {
+		(*error) = 9;
+		std::ofstream ofs(PATH);
+		ofs << *error << endl;
+		return NULL;
+	}
 	//map<char,vector<pair<string,bool>>>* words = new map<char,vector<pair<string,bool>>>;
 	//(*words)['a'].push_back(make_pair("algebra",false));
 	//(*words)['a'].push_back(make_pair("apple",false));
@@ -211,7 +256,7 @@ string getanswer(int argc, char* argv[]) {
 	}
 	else if (choice_w && !choice_c && !head && tail && fixedlength) {
 		//£¨1£¬0£¬0£¬1£¬0£©
-		triple_w_x1_x2(words, 't', 'n', 'a', headChar, length);
+		triple_w_x1_x2(words, 't', 'n', 'a', tailChar, length);
 	}
 	else if (!choice_w && choice_c && head && tail && !fixedlength) {
 		//£¨0£¬1£¬1£¬1£¬0£©
@@ -223,7 +268,7 @@ string getanswer(int argc, char* argv[]) {
 	}
 	else if (!choice_w && choice_c && !head && tail && fixedlength) {
 		//£¨0£¬1£¬0£¬1£¬1£©
-		triple_c_x1_x2(words, 't', 'n', 'a', headChar, length);
+		triple_c_x1_x2(words, 't', 'n', 'a', tailChar, length);
 	}
 	else if (!choice_w && !choice_c && head && tail && fixedlength) {
 		//£¨0£¬0£¬1£¬1£¬1£©
@@ -238,20 +283,34 @@ string getanswer(int argc, char* argv[]) {
 		quadruple_c_h_t_n(words, headChar, tailChar, length);
 	}
 	else {
-		cout << "ERROR:invaild choices" << endl;
-		exit(0);
+		(*error) = 5;
+		std::ofstream ofs(PATH);
+		ofs << *error << endl;
+		return NULL;
 	}
 	//triple_c_x1_x2(words,'t','h','p','m',0);
-	string output="";
+	string output = "";
+	int res_cout = 0;
 	for (auto &worldlist : *result) {
+		if (worldlist.size()<2) {
+			continue;
+		}
+		res_cout++;
 		for (auto& i : worldlist) {
 			output += i;
-			output += ' ';
+			output += '\n';
 		}
 		output += '\n';
 	}
-	return output;
-	getchar();
+	char *p = new char[output.length() + 1];
+	output.copy(p, output.length());
+	p[output.length()] = '\0';
+	std::ofstream ofs(PATH);
+	ofs << *error << endl;
+	ofs << fixedlength << endl;
+	ofs << res_cout << endl;
+	ofs << p << endl;
+	return p;
 }
 vector<vector<string>> mostWords(map<char, vector<pair<string, bool>>>* words) {
 	vector<string> tmpres = vector<string>();
@@ -580,18 +639,26 @@ map<char, vector<pair<string, bool>>>* preprocess(string filename) {
 }
 void  mostWords2(map<char, vector<pair<string, bool>>>*words) {
 	char c = 'a';
+	result->clear();
 	for (; c <= 'z'; c++) {
 		if (words->count(c)) {
 			for (int i = 0; i < (*words)[c].size(); i++) {
 				tmpresult->push_back((*words)[c][i].first);
 				(*words)[c][i].second = true;
 				used[c - GAP] ++;
-				search_w(words, c, i);
+				search_w(words, c, i);			
 				tmpresult->pop_back();
 				(*words)[c][i].second = false;
 				used[c - GAP] --;
 			}
 		}
+	}
+	auto res = new vector<string>();
+	if (result->size() != 0) {
+		*res = (*result)[0];
+		result->clear();
+		result->push_back(*res);
+		return;
 	}
 }
 void search_w(map<char, vector<pair<string, bool>>>*words, char start, int index) {
